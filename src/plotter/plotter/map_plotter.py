@@ -22,32 +22,43 @@ class MapPlotter():
         return 'k'
         
     def plot_history(self, flight_id: int, plot_velocity=False):
-        query = f"""
-        SELECT *
-        FROM wgs84
-        WHERE flight_key = {flight_id};
-        """
         
-        result: pd.DataFrame = self.sql_controller.pull(query)
-        
-        colours = 'b'
-        if plot_velocity:
-            velocities = result[6]
-            colours = list(map(lambda x : self.get_colour(x), velocities))
-        
-        img = plt.imread("src/plotter/plotter/maps/map.png")
+        plt.ion()
+
+        # create the figure and axes objects outside the loop
         fig, ax = plt.subplots(figsize = (8,7))
-        ax.scatter(result[3], result[2], zorder=1, alpha= 0.2, c =colours , s=10)
-        ax.set_title('Demo plot')
-        ax.set_xlim(self.BBox[0],self.BBox[1])
-        ax.set_ylim(self.BBox[2],self.BBox[3])
-        ax.imshow(img, zorder=0, extent = self.BBox, aspect= 'equal')
-        plt.show()
+
+        while True:
+            query = f"""
+            SELECT *
+            FROM wgs84
+            WHERE flight_key = {flight_id};
+            """
+
+            result: pd.DataFrame = self.sql_controller.pull(query)
+
+            colours = 'b'
+            if plot_velocity:
+                velocities = result[6]
+                colours = list(map(lambda x : self.get_colour(x), velocities))
+
+            img = plt.imread("src/plotter/plotter/maps/map.png")
+            
+            # update the scatter plot using the same axes object
+            ax.clear()
+            ax.scatter(result[3], result[2], zorder=1, alpha=0.2, c=colours, s=10)
+            ax.set_title('Demo plot')
+            ax.set_xlim(self.BBox[0],self.BBox[1])
+            ax.set_ylim(self.BBox[2],self.BBox[3])
+            ax.imshow(img, zorder=0, extent=self.BBox, aspect='equal')
+            plt.draw()
+            plt.pause(0.4)
+                
     
         
         
 # Test
 
 mp = MapPlotter()
-mp.plot_history(350581, plot_velocity=True)
+mp.plot_history(6, plot_velocity=True)
         

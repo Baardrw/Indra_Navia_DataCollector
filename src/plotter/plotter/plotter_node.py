@@ -45,7 +45,7 @@ class PlotterNode(Node):
         self.previous_sane_speed = 0.0
         
         self.compas_heading = 0.0
-        self.flight_key = random.randint(0, 1000000)
+        self.flight_key = 6
         
         self.sql_controller = SQLController()
         
